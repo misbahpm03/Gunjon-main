@@ -184,6 +184,6 @@ export const mockUsers: User[] = [
 
 export const mockOffers: Offer[] = [
   { id: 'OFF-001', title: 'Summer Sale', discount: '15% OFF', status: 'Active', startDate: '2026-06-01', endDate: '2026-06-30', productIds: ['PRD-001', 'PRD-002', 'PRD-003'] },
-  { id: 'OFF-002', title: 'Back to School', discount: '$50 OFF Tablets', status: 'Scheduled', startDate: '2026-08-15', endDate: '2026-09-15', productIds: ['PRD-006', 'PRD-007'] },
+  { id: 'OFF-002', title: 'Back to School', discount: '৳50 OFF Tablets', status: 'Scheduled', startDate: '2026-08-15', endDate: '2026-09-15', productIds: ['PRD-006', 'PRD-007'] },
   { id: 'OFF-003', title: 'Black Friday', discount: 'Up to 40% OFF', status: 'Expired', startDate: '2025-11-25', endDate: '2025-11-30', productIds: ['PRD-004', 'PRD-005', 'PRD-008'] },
 ];

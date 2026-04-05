@@ -30,7 +30,7 @@ export function Support() {
   return (
     <div className="min-h-screen bg-[#f9fafb]">
       {/* Header */}
-      <header className={`sticky top-0 md:top-16 z-30 bg-white/90 backdrop-blur-xl pt-safe-top md:pt-0 transition-all duration-300 ${isScrolled ? 'shadow-sm border-b border-gray-200' : 'border-b border-gray-100'}`}>
+      <header className={`sticky top-0 md:top-16 z-30 bg-white/90 backdrop-blur-xl pt-safe-top md:pt-0 transition-all duration-300 ৳{isScrolled ? 'shadow-sm border-b border-gray-200' : 'border-b border-gray-100'}`}>
         <div className="px-4 h-14 flex items-center justify-center relative">
           <h1 className="text-lg font-bold text-gray-900">Support & Contact</h1>
         </div>

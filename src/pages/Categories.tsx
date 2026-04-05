@@ -58,7 +58,7 @@ export function Categories() {
                   <img src={c.image} alt={c.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                   <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${c.color} shadow-lg`}>
+                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ৳{c.color} shadow-lg`}>
                       <Icon className="h-6 w-6" />
                     </div>
                     <span className="bg-white/90 backdrop-blur-sm text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">

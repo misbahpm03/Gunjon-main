@@ -9,11 +9,19 @@ export function ProductDetails() {
   const { products, api } = useData();
   const product = products.find(p => p.id === id);
   const [activeImage, setActiveImage] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+  const [showToast, setShowToast] = useState(false);
 
   if (!product) return <div className="p-12 text-center text-gray-500">Product not found</div>;
 
+  const handleAddToCart = () => {
+    api.addToCart(product, quantity);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 text-left">
       <Link to="/shop" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 mb-8">
         <ArrowLeft className="h-4 w-4 mr-1" /> Back to Shop
       </Link>
@@ -35,9 +43,9 @@ export function ProductDetails() {
                 <button 
                   key={idx} 
                   onClick={() => setActiveImage(idx)}
-                  className={`bg-gray-50 rounded-lg p-2 aspect-square flex items-center justify-center border-2 transition-colors ${activeImage === idx ? 'border-indigo-600' : 'border-transparent hover:border-gray-200'}`}
+                  className={`bg-gray-50 rounded-lg p-2 aspect-square flex items-center justify-center border-2 transition-colors ৳{activeImage === idx ? 'border-indigo-600' : 'border-transparent hover:border-gray-200'}`}
                 >
-                  <img src={img} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-contain mix-blend-multiply" />
+                  <img src={img} alt={`${product.name} ৳{idx + 1}`} className="w-full h-full object-contain mix-blend-multiply" />
                 </button>
               ))}
             </div>
@@ -53,9 +61,9 @@ export function ProductDetails() {
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">{product.name}</h1>
           
           <div className="flex items-end mb-6 space-x-3">
-            <div className="text-4xl font-bold text-gray-900">${product.price.toLocaleString()}</div>
+            <div className="text-4xl font-bold text-gray-900">৳{product.price.toLocaleString()}</div>
             {product.originalPrice && (
-              <div className="text-xl text-gray-400 line-through mb-1">${product.originalPrice.toLocaleString()}</div>
+              <div className="text-xl text-gray-400 line-through mb-1">৳{product.originalPrice.toLocaleString()}</div>
             )}
           </div>
 
@@ -90,11 +98,24 @@ export function ProductDetails() {
           </div>
 
           <div className="flex space-x-4 mb-8">
+            <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+              <button 
+                className="px-4 py-3 text-gray-600 hover:bg-gray-100 disabled:opacity-50 transition-colors"
+                onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                disabled={quantity <= 1}
+              >-</button>
+              <span className="px-4 py-3 font-medium min-w-[3rem] text-center border-x border-gray-200">{quantity}</span>
+              <button 
+                className="px-4 py-3 text-gray-600 hover:bg-gray-100 disabled:opacity-50 transition-colors"
+                onClick={() => setQuantity(q => Math.min(product.stock, q + 1))}
+                disabled={quantity >= product.stock}
+              >+</button>
+            </div>
             <Button 
               size="lg" 
               className="flex-1 h-14 text-lg" 
               disabled={product.stock === 0}
-              onClick={() => api.addToCart(product, 1)}
+              onClick={handleAddToCart}
             >
               <ShoppingCart className="mr-2 h-5 w-5" /> 
               {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
@@ -130,6 +151,18 @@ export function ProductDetails() {
           </table>
         </div>
       </div>
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className="bg-white/20 p-1 rounded-full">
+            <Check className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <p className="font-bold text-sm">Added to Cart</p>
+            <p className="text-green-100 text-xs">{quantity}x {product.name}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

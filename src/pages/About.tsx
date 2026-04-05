@@ -7,7 +7,7 @@ export function About() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-16">
         <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">
-          About Gunjon Telecom
+          About Gunjan Telecom
         </h1>
         <p className="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
           Your trusted partner for the latest electronics, smartphones, and accessories.
@@ -20,7 +20,7 @@ export function About() {
             <Store className="h-24 w-24 mb-6 opacity-90" />
             <h2 className="text-3xl font-bold mb-4">Our Story</h2>
             <p className="text-indigo-100 text-lg leading-relaxed">
-              Founded with a passion for technology, Gunjon Telecom has grown from a small local shop to a premier electronics destination. We believe in providing our customers with not just products, but solutions that enhance their digital lives.
+              Founded with a passion for technology, Gunjan Telecom has grown from a small local shop to a premier electronics destination. We believe in providing our customers with not just products, but solutions that enhance their digital lives.
             </p>
           </div>
           

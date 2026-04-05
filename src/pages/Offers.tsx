@@ -20,6 +20,7 @@ export function Offers() {
   // Form states
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   const [bannerForm, setBannerForm] = useState({ title: '', subtitle: '', image: '', link: '' });
+  const [uploadingBannerImage, setUploadingBannerImage] = useState(false);
 
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
   const [offerForm, setOfferForm] = useState({ title: '', discount: '', startDate: '', endDate: '' });
@@ -52,7 +53,27 @@ export function Offers() {
 
   const handleDeleteBanner = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this banner?')) {
-      await api.deleteBanner(id);
+      try {
+        await api.deleteBanner(id);
+      } catch (err: any) {
+        console.error('Failed to delete banner', err);
+        alert(`Failed to delete banner. Error: ${err?.message || "Unknown error"}`);
+      }
+    }
+  };
+
+  const handleBannerImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingBannerImage(true);
+      const url = await api.uploadImage(file, 'banners');
+      setBannerForm(prev => ({ ...prev, image: url }));
+    } catch (err) {
+      console.error('Failed to upload banner image', err);
+      alert('Failed to upload banner image. Make sure your "banners" bucket is public.');
+    } finally {
+      setUploadingBannerImage(false);
     }
   };
 
@@ -98,7 +119,12 @@ export function Offers() {
 
   const handleDeleteOffer = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this offer?')) {
-      await api.deleteOffer(id);
+      try {
+        await api.deleteOffer(id);
+      } catch (err: any) {
+        console.error('Failed to delete offer', err);
+        alert(`Failed to delete offer. Error: ${err?.message || "Unknown error"}`);
+      }
     }
   };
 
@@ -147,7 +173,7 @@ export function Offers() {
       {/* Tabs */}
       <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-full sm:w-fit">
         <button
-          className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+          className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-md transition-colors ৳{
             activeTab === 'banners' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
           }`}
           onClick={() => setActiveTab('banners')}
@@ -155,7 +181,7 @@ export function Offers() {
           Banners
         </button>
         <button
-          className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+          className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-md transition-colors ৳{
             activeTab === 'offers' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
           }`}
           onClick={() => setActiveTab('offers')}
@@ -194,7 +220,7 @@ export function Offers() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {offers.map(offer => (
             <Card key={offer.id} className="relative overflow-hidden group">
-              <div className={`absolute top-0 left-0 w-1 h-full ${
+              <div className={`absolute top-0 left-0 w-1 h-full ৳{
                 offer.status === 'Active' ? 'bg-emerald-500' : 
                 offer.status === 'Scheduled' ? 'bg-amber-500' : 'bg-gray-300'
               }`} />
@@ -251,13 +277,22 @@ export function Offers() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Banner Image URL</label>
-            <Input 
-              placeholder="https://example.com/image.jpg" 
-              required 
-              value={bannerForm.image}
-              onChange={e => setBannerForm({...bannerForm, image: e.target.value})}
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Banner Image</label>
+            <div className="flex gap-2">
+              <Input 
+                placeholder="https://example.com/image.jpg" 
+                required 
+                value={bannerForm.image}
+                onChange={e => setBannerForm({...bannerForm, image: e.target.value})}
+                className="flex-1"
+              />
+              <div className="relative overflow-hidden inline-block align-middle">
+                <input type="file" onChange={handleBannerImageUpload} accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" />
+                <Button type="button" variant="secondary" disabled={uploadingBannerImage}>
+                  {uploadingBannerImage ? '...' : 'Upload'}
+                </Button>
+              </div>
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Redirect Target (URL or Path)</label>
@@ -291,7 +326,7 @@ export function Offers() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Discount Details</label>
             <Input 
-              placeholder="e.g., 15% OFF or $50 OFF" 
+              placeholder="e.g., 15% OFF or ৳50 OFF" 
               required 
               value={offerForm.discount}
               onChange={e => setOfferForm({...offerForm, discount: e.target.value})}

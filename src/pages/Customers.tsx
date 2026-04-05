@@ -9,10 +9,30 @@ import { Search, Plus, Mail, Phone, Eye, User, MapPin, ShoppingBag } from 'lucid
 import { format } from 'date-fns';
 
 export function Customers() {
-  const { customers, orders } = useData();
+  const { orders } = useData();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCustomer, setSelectedCustomer] = useState<typeof customers[0] | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Compute customers dynamically from orders
+  const computedCustomersMap = new Map();
+  orders.forEach(order => {
+    const key = order.customerPhone || order.customerEmail || order.customerName;
+    if (!computedCustomersMap.has(key)) {
+      computedCustomersMap.set(key, {
+        id: `CUST-${key.replace(/[^a-zA-Z0-9]/g, '')}`,
+        name: order.customerName,
+        email: order.customerEmail || 'No Email',
+        phone: order.customerPhone || 'No Phone',
+        totalSpent: 0,
+        orders: 0
+      });
+    }
+    const existing = computedCustomersMap.get(key);
+    existing.totalSpent += order.total;
+    existing.orders += 1;
+  });
+  const customers = Array.from(computedCustomersMap.values());
 
   const filteredCustomers = customers.filter(c => 
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -33,9 +53,6 @@ export function Customers() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900">Customers</h1>
-        <Button className="w-full sm:w-auto">
-          <Plus className="mr-2 h-4 w-4" /> Add Customer
-        </Button>
       </div>
 
       <Card>
@@ -79,7 +96,7 @@ export function Customers() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right font-medium text-emerald-600">
-                    ${customer.totalSpent.toLocaleString()}
+                    ৳{customer.totalSpent.toLocaleString()}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell text-right text-gray-500">
                     {customer.orders}
@@ -154,7 +171,7 @@ export function Customers() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
                       <p className="text-sm text-gray-500 mb-1">Total Spent</p>
-                      <p className="text-2xl font-bold text-emerald-600">${selectedCustomer.totalSpent.toLocaleString()}</p>
+                      <p className="text-2xl font-bold text-emerald-600">৳{selectedCustomer.totalSpent.toLocaleString()}</p>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
                       <p className="text-sm text-gray-500 mb-1">Total Orders</p>
@@ -190,7 +207,7 @@ export function Customers() {
                             {format(new Date(order.date), 'MMM d, yyyy')}
                           </TableCell>
                           <TableCell>
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ৳{
                               order.status === 'Delivered' ? "bg-green-100 text-green-700" :
                               order.status === 'Confirmed' ? "bg-blue-100 text-blue-700" :
                               order.status === 'Pending' ? "bg-amber-100 text-amber-700" :
@@ -200,7 +217,7 @@ export function Customers() {
                             </span>
                           </TableCell>
                           <TableCell className="text-right font-medium">
-                            ${order.total.toLocaleString()}
+                            ৳{order.total.toLocaleString()}
                           </TableCell>
                         </TableRow>
                       ))}

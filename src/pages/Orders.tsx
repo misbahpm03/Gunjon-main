@@ -7,8 +7,9 @@ import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
 import { useData } from '../context/DataContext';
 import { Order } from '../types';
-import { Search, Filter, Eye, CheckCircle, Package, Truck, XCircle, Clock, MapPin, CreditCard, User, Phone, Mail } from 'lucide-react';
+import { Search, Filter, Eye, CheckCircle, Package, Truck, XCircle, Clock, MapPin, CreditCard, User, Phone, Mail, Printer } from 'lucide-react';
 import { format, isWithinInterval, parseISO, startOfDay, endOfDay } from 'date-fns';
+import { InvoiceModal } from '../components/InvoiceModal';
 
 export function Orders() {
   const { orders, api } = useData();
@@ -19,6 +20,7 @@ export function Orders() {
   
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
 
   const filteredOrders = useMemo(() => {
     return orders.filter(o => {
@@ -161,7 +163,7 @@ export function Orders() {
                     <TableCell className="text-gray-500 whitespace-nowrap">
                       {format(new Date(order.date), 'MMM d, yyyy h:mm a')}
                     </TableCell>
-                    <TableCell className="font-medium">${order.total.toLocaleString()}</TableCell>
+                    <TableCell className="font-medium">৳{order.total.toLocaleString()}</TableCell>
                     <TableCell>
                       <Badge variant={getStatusBadgeVariant(order.status) as any} className={order.status === 'Confirmed' ? 'bg-blue-100 text-blue-800 hover:bg-blue-100' : ''}>
                         {order.status}
@@ -202,7 +204,7 @@ export function Orders() {
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        title={`Order Details - ${selectedOrder?.id}`}
+        title={`Order Details - ৳{selectedOrder?.id}`}
         className="max-w-3xl"
       >
         {selectedOrder && (
@@ -237,6 +239,13 @@ export function Orders() {
                     <Truck className="mr-2 h-4 w-4" /> Mark as Delivered
                   </Button>
                 )}
+                <Button 
+                  size="sm" 
+                  onClick={() => setIsInvoiceOpen(true)}
+                  className="bg-gray-900 hover:bg-gray-800 text-white ml-2"
+                >
+                  <Printer className="mr-2 h-4 w-4" /> Invoice
+                </Button>
               </div>
             </div>
 
@@ -316,7 +325,7 @@ export function Orders() {
                           <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
                         </div>
                         <div className="text-sm font-medium text-gray-900">
-                          ${(item.price * item.quantity).toLocaleString()}
+                          ৳{(item.price * item.quantity).toLocaleString()}
                         </div>
                       </div>
                     ))
@@ -328,15 +337,15 @@ export function Orders() {
                 <div className="mt-6 pt-4 border-t border-gray-100">
                   <div className="flex justify-between items-center text-sm mb-2">
                     <span className="text-gray-500">Subtotal</span>
-                    <span className="font-medium">${selectedOrder.total.toLocaleString()}</span>
+                    <span className="font-medium">৳{selectedOrder.total.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm mb-2">
                     <span className="text-gray-500">Shipping</span>
-                    <span className="font-medium">$0.00</span>
+                    <span className="font-medium">৳0.00</span>
                   </div>
                   <div className="flex justify-between items-center text-base font-bold mt-4 pt-4 border-t border-gray-100">
                     <span>Total</span>
-                    <span className="text-indigo-600">${selectedOrder.total.toLocaleString()}</span>
+                    <span className="text-indigo-600">৳{selectedOrder.total.toLocaleString()}</span>
                   </div>
                 </div>
               </CardContent>
@@ -344,6 +353,12 @@ export function Orders() {
           </div>
         )}
       </Modal>
+
+      <InvoiceModal 
+        isOpen={isInvoiceOpen} 
+        onClose={() => setIsInvoiceOpen(false)} 
+        order={selectedOrder} 
+      />
     </div>
   );
 }

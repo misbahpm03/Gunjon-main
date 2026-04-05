@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Product } from '../types';
+import { useData } from '../context/DataContext';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { X, Plus } from 'lucide-react';
@@ -11,6 +12,9 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProps) {
+  const { categories, products, api } = useData();
+  const uniqueBrands = Array.from(new Set(products.map(p => p.brand).filter(Boolean)));
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [formData, setFormData] = useState<Partial<Product>>(
     initialData || {
       name: '',
@@ -27,6 +31,7 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
       warranty: '',
       status: 'In Stock',
       popularity: 0,
+      isNew: false,
     }
   );
 
@@ -39,6 +44,21 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
       ...prev,
       [name]: name === 'price' || name === 'originalPrice' || name === 'stock' ? Number(value) : value,
     }));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingImage(true);
+      const url = await api.uploadImage(file, 'products');
+      setFormData(prev => ({ ...prev, image: url }));
+    } catch (err) {
+      console.error('Failed to upload image', err);
+      alert('Failed to upload image. Make sure your bucket exists and is public.');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleAddSpec = () => {
@@ -84,11 +104,21 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Brand</label>
-          <Input required name="brand" value={formData.brand || ''} onChange={handleChange} placeholder="Brand" />
+          <Input required list="brand-list" name="brand" value={formData.brand || ''} onChange={handleChange} placeholder="Select or type Brand" />
+          <datalist id="brand-list">
+            {uniqueBrands.map((b) => (
+              <option key={b} value={b} />
+            ))}
+          </datalist>
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Category</label>
-          <Input required name="category" value={formData.category || ''} onChange={handleChange} placeholder="Category" />
+          <select required name="category" value={formData.category || ''} onChange={handleChange} className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
+            <option value="">Select Category</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.name}>{cat.name}</option>
+            ))}
+          </select>
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Stock Quantity</label>
@@ -103,8 +133,16 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
           <Input type="number" min="0" step="0.01" name="originalPrice" value={formData.originalPrice || 0} onChange={handleChange} />
         </div>
         <div className="space-y-2 md:col-span-2">
-          <label className="text-sm font-medium">Main Image URL</label>
-          <Input required name="image" value={formData.image || ''} onChange={handleChange} placeholder="https://..." />
+          <label className="text-sm font-medium">Main Image</label>
+          <div className="flex gap-2">
+            <Input required name="image" value={formData.image || ''} onChange={handleChange} placeholder="Image URL or drop file" className="flex-1" />
+            <div className="relative overflow-hidden inline-block">
+              <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" />
+              <Button type="button" variant="secondary" disabled={uploadingImage}>
+                {uploadingImage ? 'Uploading...' : 'Upload File'}
+              </Button>
+            </div>
+          </div>
         </div>
         <div className="space-y-2 md:col-span-2">
           <label className="text-sm font-medium">Description</label>
@@ -149,6 +187,20 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
             ))}
           </div>
         )}
+      </div>
+
+      <div className="flex items-center gap-2 pt-4 border-t">
+        <input 
+          type="checkbox" 
+          id="isNewArrival"
+          name="isNew"
+          checked={formData.isNew || false}
+          onChange={(e) => setFormData(p => ({ ...p, isNew: e.target.checked }))}
+          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+        />
+        <label htmlFor="isNewArrival" className="text-sm font-medium text-gray-700">
+          Mark as New Arrival (Displays on Homepage)
+        </label>
       </div>
 
       <div className="flex justify-end gap-2 pt-4 border-t">

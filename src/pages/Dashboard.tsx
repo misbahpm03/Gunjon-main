@@ -6,24 +6,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useAuth } from '../context/AuthContext';
 import { cn } from '../lib/utils';
 
-const salesData = [
-  { name: 'Mon', sales: 4000 },
-  { name: 'Tue', sales: 3000 },
-  { name: 'Wed', sales: 2000 },
-  { name: 'Thu', sales: 2780 },
-  { name: 'Fri', sales: 1890 },
-  { name: 'Sat', sales: 2390 },
-  { name: 'Sun', sales: 3490 },
-];
-
-const categoryData = [
-  { name: 'Smartphones', value: 45 },
-  { name: 'Accessories', value: 30 },
-  { name: 'Tablets', value: 15 },
-  { name: 'Wearables', value: 10 },
-];
-
-const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444'];
+const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
 export function Dashboard() {
   const { role } = useAuth();
@@ -63,7 +46,7 @@ export function Dashboard() {
               <DollarSign className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${todaysRevenue.toLocaleString()}</div>
+              <div className="text-2xl font-bold">৳{todaysRevenue.toLocaleString()}</div>
             </CardContent>
           </Card>
           <Card>
@@ -89,7 +72,7 @@ export function Dashboard() {
                     <p className="text-sm font-medium leading-none">{order.customerName}</p>
                     <p className="text-xs text-gray-500">{new Date(order.date).toLocaleTimeString()}</p>
                   </div>
-                  <div className="font-medium text-sm">+${order.total.toLocaleString()}</div>
+                  <div className="font-medium text-sm">+৳{order.total.toLocaleString()}</div>
                 </div>
               ))}
               {todaysSales.length === 0 && (
@@ -103,17 +86,42 @@ export function Dashboard() {
   }
 
   // Admin/Manager View Logic
-  const baseRevenue = orders.reduce((acc, order) => acc + order.total, 0);
-  const baseOrders = orders.length;
-
-  const multiplier = dateFilter === 'today' ? 1 : dateFilter === 'weekly' ? 7 : 30;
+  const filterDateFrom = new Date();
+  if (dateFilter === 'today') {
+    filterDateFrom.setHours(0, 0, 0, 0);
+  } else if (dateFilter === 'weekly') {
+    filterDateFrom.setDate(filterDateFrom.getDate() - 7);
+  } else {
+    filterDateFrom.setDate(filterDateFrom.getDate() - 30);
+  }
   
-  const filteredRevenue = baseRevenue * multiplier;
-  const filteredOrders = baseOrders * multiplier;
+  const filteredOrdersArray = orders.filter(o => new Date(o.date) >= filterDateFrom);
+  const filteredRevenue = filteredOrdersArray.reduce((acc, order) => acc + order.total, 0);
+  const filteredOrders = filteredOrdersArray.length;
 
   const lowStockProducts = products.filter(p => p.stock > 0 && p.stock <= 10);
   const outOfStockProducts = products.filter(p => p.stock === 0);
   const topSellingProducts = [...products].sort((a, b) => b.popularity - a.popularity).slice(0, 5);
+
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    return d.toISOString().split('T')[0];
+  }).reverse();
+
+  const salesData = last7Days.map(dateStr => {
+    const dayOrders = orders.filter(o => o.date.startsWith(dateStr));
+    return {
+      name: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short' }),
+      sales: dayOrders.reduce((acc, o) => acc + o.total, 0),
+    };
+  });
+
+  const categoryMap = new Map<string, number>();
+  products.forEach(p => {
+    categoryMap.set(p.category, (categoryMap.get(p.category) || 0) + 1);
+  });
+  const categoryData = Array.from(categoryMap.entries()).map(([name, value]) => ({ name, value }));
 
   return (
     <div className="space-y-6 relative">
@@ -154,7 +162,7 @@ export function Dashboard() {
             <DollarSign className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${filteredRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">৳{filteredRevenue.toLocaleString()}</div>
             <p className="text-xs text-green-500 flex items-center mt-1">
               <TrendingUp className="h-3 w-3 mr-1" /> +12.5% from previous period
             </p>
@@ -242,7 +250,7 @@ export function Dashboard() {
                     dataKey="value"
                   >
                     {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={`cell-৳{index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip 
@@ -277,7 +285,7 @@ export function Dashboard() {
                     </div>
                   </div>
                   <div className="flex flex-col items-end space-y-1">
-                    <div className="font-medium text-sm">${order.total.toLocaleString()}</div>
+                    <div className="font-medium text-sm">৳{order.total.toLocaleString()}</div>
                     <span className={cn(
                       "text-[10px] px-2 py-0.5 rounded-full font-medium",
                       order.status === 'Delivered' ? "bg-green-100 text-green-700" :
@@ -310,7 +318,7 @@ export function Dashboard() {
                     <p className="text-xs text-gray-500 truncate">{product.category}</p>
                   </div>
                   <div className="flex flex-col items-end">
-                    <span className="text-sm font-medium">${product.price}</span>
+                    <span className="text-sm font-medium">৳{product.price}</span>
                     <span className="text-[10px] text-gray-500">{product.popularity} sales</span>
                   </div>
                 </div>

@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export function OrderSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [orderId] = useState(location.state?.orderId || `ORD-${Math.floor(Math.random() * 1000000000)}`);
+  const [orderId] = useState(location.state?.orderId || `ORD-৳{Math.floor(Math.random() * 1000000000)}`);
   const [copied, setCopied] = useState(false);
 
   // Calculate estimated delivery (e.g., 3 days from now)
@@ -97,10 +97,13 @@ export function OrderSuccess() {
             <ArrowRight size={18} />
           </button>
           
-          <button className="w-full py-4 bg-white text-gray-900 rounded-xl font-bold active:scale-95 transition-transform flex items-center justify-center gap-2 border border-gray-200 hover:bg-gray-50">
+          <a 
+            href="tel:+1234567890"
+            className="w-full py-4 bg-white text-gray-900 rounded-xl font-bold active:scale-95 transition-transform flex items-center justify-center gap-2 border border-gray-200 hover:bg-gray-50 cursor-pointer"
+          >
             <Phone size={18} className="text-gray-400" />
             Contact Support
-          </button>
+          </a>
         </div>
       </motion.div>
 

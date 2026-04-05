@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useData } from '../context/DataContext';
-import { Product } from '../types';
-import { Search, ShoppingCart, Trash2, Plus, Minus, CreditCard, Banknote, User, Phone, Tag, Barcode, CheckCircle2 } from 'lucide-react';
+import { Product, Order } from '../types';
+import { Search, ShoppingCart, Trash2, Plus, Minus, CreditCard, Banknote, User, Phone, Tag, Barcode, CheckCircle2, Printer } from 'lucide-react';
+import { InvoiceModal } from '../components/InvoiceModal';
 
 interface CartItem extends Product {
   quantity: number;
@@ -22,6 +23,8 @@ export function POS() {
   const [discountInput, setDiscountInput] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<'Cash' | 'Online'>('Cash');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
 
   // Filter products based on search term
   const filteredProducts = products.filter(p => 
@@ -80,12 +83,12 @@ export function POS() {
 
     try {
       // Create order
-      await api.addOrder({
+      const newOrder = await api.addOrder({
         customerName: customerName || 'Walk-in Customer',
         customerPhone: customerPhone || undefined,
         items: cart.length,
         itemsList: cart.map(item => ({
-          id: `OI-${Date.now()}-${item.id}`,
+          id: `OI-৳{Date.now()}-৳{item.id}`,
           productId: item.id,
           name: item.name,
           quantity: item.quantity,
@@ -97,20 +100,22 @@ export function POS() {
       });
 
       // Show success state
+      setCompletedOrder(newOrder);
       setIsSuccess(true);
       
-      // Reset form after 2 seconds
-      setTimeout(() => {
-        setCart([]);
-        setCustomerName('');
-        setCustomerPhone('');
-        setDiscountInput('');
-        setPaymentMethod('Cash');
-        setIsSuccess(false);
-      }, 2000);
     } catch (error) {
       console.error('Failed to complete sale', error);
     }
+  };
+
+  const resetPOS = () => {
+    setCart([]);
+    setCustomerName('');
+    setCustomerPhone('');
+    setDiscountInput('');
+    setPaymentMethod('Cash');
+    setIsSuccess(false);
+    setCompletedOrder(null);
   };
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -152,13 +157,13 @@ export function POS() {
             {filteredProducts.map(product => (
               <Card 
                 key={product.id} 
-                className={`cursor-pointer transition-colors overflow-hidden flex flex-col ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:border-indigo-500 hover:shadow-md'}`}
+                className={`cursor-pointer transition-colors overflow-hidden flex flex-col ৳{product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:border-indigo-500 hover:shadow-md'}`}
                 onClick={() => addToCart(product)}
               >
                 <div className="h-32 bg-gray-100 relative">
                   <img src={product.image} alt={product.name} className="w-full h-full object-cover mix-blend-multiply p-4" />
                   <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-bold text-gray-900 shadow-sm">
-                    ${product.price}
+                    ৳{product.price}
                   </div>
                   {product.stock <= 0 && (
                     <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
@@ -169,7 +174,7 @@ export function POS() {
                 <div className="p-3 flex-1 flex flex-col justify-between bg-white">
                   <h3 className="text-sm font-medium line-clamp-2 text-gray-900 leading-snug">{product.name}</h3>
                   <div className="flex items-center justify-between mt-2">
-                    <p className={`text-xs font-medium ${product.stock >= 5 ? 'text-green-600' : product.stock > 0 ? 'text-amber-600' : 'text-red-600'}`}>
+                    <p className={`text-xs font-medium ৳{product.stock >= 5 ? 'text-green-600' : product.stock > 0 ? 'text-amber-600' : 'text-red-600'}`}>
                       {product.stock} in stock
                     </p>
                     <Button size="sm" variant="ghost" className="h-6 w-6 p-0 rounded-full bg-gray-50 hover:bg-indigo-50 hover:text-indigo-600" disabled={product.stock <= 0}>
@@ -191,12 +196,20 @@ export function POS() {
       {/* Cart & Checkout Section */}
       <Card className="w-full lg:w-[400px] flex flex-col h-full shrink-0 shadow-lg border-gray-200 overflow-hidden relative">
         {isSuccess && (
-          <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center animate-in fade-in duration-200">
+          <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center animate-in fade-in duration-200 p-6 text-center">
             <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <CheckCircle2 className="h-8 w-8 text-green-600" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Sale Completed!</h2>
-            <p className="text-gray-500">Receipt generated successfully.</p>
+            <p className="text-gray-500 mb-6">Receipt generated successfully.</p>
+            <div className="flex gap-4">
+              <Button onClick={() => setIsInvoiceModalOpen(true)} variant="outline" className="border-indigo-600 text-indigo-600 hover:bg-indigo-50">
+                <Printer className="mr-2 h-4 w-4" /> Print Invoice
+              </Button>
+              <Button onClick={resetPOS}>
+                New Sale
+              </Button>
+            </div>
           </div>
         )}
 
@@ -221,7 +234,7 @@ export function POS() {
                 <li key={item.id} className="p-3 flex items-center justify-between hover:bg-gray-50/50 transition-colors group">
                   <div className="flex-1 min-w-0 pr-3">
                     <h4 className="text-sm font-medium text-gray-900 truncate" title={item.name}>{item.name}</h4>
-                    <div className="text-sm text-indigo-600 font-semibold">${item.price.toLocaleString()}</div>
+                    <div className="text-sm text-indigo-600 font-semibold">৳{item.price.toLocaleString()}</div>
                   </div>
                   <div className="flex items-center space-x-2 shrink-0">
                     <div className="flex items-center border border-gray-200 rounded-md bg-white shadow-sm">
@@ -270,7 +283,7 @@ export function POS() {
             <div className="space-y-2">
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Subtotal</span>
-                <span className="font-medium text-gray-900">${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span className="font-medium text-gray-900">৳{subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
               <div className="flex justify-between items-center text-sm text-gray-600">
                 <span className="flex items-center"><Tag className="h-3.5 w-3.5 mr-1" /> Discount</span>
@@ -289,7 +302,7 @@ export function POS() {
               </div>
               <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t border-gray-200">
                 <span>Total</span>
-                <span className="text-indigo-600">${total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span className="text-indigo-600">৳{total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
             
@@ -298,7 +311,7 @@ export function POS() {
                 <Button 
                   type="button"
                   variant={paymentMethod === 'Cash' ? 'default' : 'outline'}
-                  className={`w-full ${paymentMethod === 'Cash' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-white'}`}
+                  className={`w-full ৳{paymentMethod === 'Cash' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-white'}`}
                   onClick={() => setPaymentMethod('Cash')}
                 >
                   <Banknote className="mr-2 h-4 w-4" /> Cash
@@ -306,7 +319,7 @@ export function POS() {
                 <Button 
                   type="button"
                   variant={paymentMethod === 'Online' ? 'default' : 'outline'}
-                  className={`w-full ${paymentMethod === 'Online' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-white'}`}
+                  className={`w-full ৳{paymentMethod === 'Online' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-white'}`}
                   onClick={() => setPaymentMethod('Online')}
                 >
                   <CreditCard className="mr-2 h-4 w-4" /> Online
@@ -324,6 +337,12 @@ export function POS() {
           </div>
         </div>
       </Card>
+
+      <InvoiceModal 
+        isOpen={isInvoiceModalOpen} 
+        onClose={() => setIsInvoiceModalOpen(false)} 
+        order={completedOrder} 
+      />
     </div>
   );
 }

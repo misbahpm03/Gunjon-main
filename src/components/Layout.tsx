@@ -79,7 +79,7 @@ export function Layout() {
       <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200">
         <div className="h-16 flex items-center px-6 border-b border-gray-200">
           <Smartphone className="h-6 w-6 text-indigo-600 mr-2" />
-          <span className="text-lg font-bold tracking-tight">MobiShop Admin</span>
+          <span className="text-lg font-bold tracking-tight">Gunjan Telecom</span>
         </div>
         <nav className="flex-1 overflow-y-auto py-4">
           <ul className="space-y-1 px-3">
@@ -131,7 +131,7 @@ export function Layout() {
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6">
           <div className="flex items-center md:hidden">
             <Smartphone className="h-6 w-6 text-indigo-600 mr-2" />
-            <span className="text-lg font-bold">MobiShop</span>
+            <span className="text-lg font-bold">Gunjan Telecom</span>
           </div>
           <div className="hidden md:flex items-center text-sm text-gray-500">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -200,7 +200,7 @@ export function Layout() {
                                     {notif.message}
                                   </p>
                                   <p className="text-xs text-gray-400 mt-1">
-                                    {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true })}
+                                    {notif.createdAt ? formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true }) : '–'}
                                   </p>
                                 </div>
                                 {!notif.read && (
@@ -226,7 +226,7 @@ export function Layout() {
                                     {notif.message}
                                   </p>
                                   <p className="text-xs text-gray-400 mt-1">
-                                    {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true })}
+                                    {notif.createdAt ? formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true }) : '–'}
                                   </p>
                                 </div>
                                 {!notif.read && (

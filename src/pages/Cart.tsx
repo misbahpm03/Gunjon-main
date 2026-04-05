@@ -11,7 +11,7 @@ export function Cart() {
 
   if (cart.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 text-left">
         <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-indigo-50 mb-6">
           <ShoppingCart className="h-10 w-10 text-indigo-600" />
         </div>
@@ -29,7 +29,7 @@ export function Cart() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 text-left text-gray-900">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -39,7 +39,7 @@ export function Cart() {
               <img src={item.product.image} alt={item.product.name} className="w-24 h-24 object-contain" />
               <div className="flex-1 text-center sm:text-left">
                 <h3 className="text-lg font-bold text-gray-900">{item.product.name}</h3>
-                <p className="text-indigo-600 font-semibold mt-1">${item.product.price.toLocaleString()}</p>
+                <p className="text-indigo-600 font-semibold mt-1">৳{item.product.price.toLocaleString()}</p>
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex items-center border border-gray-200 rounded-lg">
@@ -74,7 +74,7 @@ export function Cart() {
             <div className="space-y-4 mb-6">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
-                <span>${subtotal.toLocaleString()}</span>
+                <span>৳{subtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Shipping</span>
@@ -82,7 +82,7 @@ export function Cart() {
               </div>
               <div className="border-t border-gray-200 pt-4 flex justify-between font-bold text-lg text-gray-900">
                 <span>Total</span>
-                <span>${subtotal.toLocaleString()}</span>
+                <span>৳{subtotal.toLocaleString()}</span>
               </div>
             </div>
             <Link to="/checkout">

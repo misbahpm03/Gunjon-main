@@ -10,33 +10,6 @@ import {
   LineChart, Line, Legend
 } from 'recharts';
 
-const salesData = [
-  { name: 'Mon', sales: 4000, orders: 24 },
-  { name: 'Tue', sales: 3000, orders: 18 },
-  { name: 'Wed', sales: 2000, orders: 12 },
-  { name: 'Thu', sales: 2780, orders: 19 },
-  { name: 'Fri', sales: 1890, orders: 10 },
-  { name: 'Sat', sales: 2390, orders: 15 },
-  { name: 'Sun', sales: 3490, orders: 22 },
-];
-
-const revenueData = [
-  { month: 'Jan', revenue: 45000 },
-  { month: 'Feb', revenue: 52000 },
-  { month: 'Mar', revenue: 48000 },
-  { month: 'Apr', revenue: 61000 },
-  { month: 'May', revenue: 59000 },
-  { month: 'Jun', revenue: 65000 },
-];
-
-const topProducts = [
-  { id: '1', name: 'iPhone 15 Pro Max', sold: 145, revenue: 173855 },
-  { id: '2', name: 'Samsung Galaxy S24 Ultra', sold: 112, revenue: 145488 },
-  { id: '3', name: 'AirPods Pro (2nd Gen)', sold: 340, revenue: 84660 },
-  { id: '4', name: 'iPad Pro 12.9"', sold: 85, revenue: 93415 },
-  { id: '5', name: 'MagSafe Charger', sold: 420, revenue: 16380 },
-];
-
 export function Reports() {
   const { orders, products } = useData();
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
@@ -50,8 +23,8 @@ export function Reports() {
   // Compute top products
   const productSales = new Map<string, { name: string, sold: number, revenue: number }>();
   orders.forEach(order => {
-    order.items.forEach(item => {
-      const existing = productSales.get(item.productId) || { name: item.productName, sold: 0, revenue: 0 };
+    order.itemsList?.forEach(item => {
+      const existing = productSales.get(item.productId) || { name: item.name, sold: 0, revenue: 0 };
       existing.sold += item.quantity;
       existing.revenue += item.price * item.quantity;
       productSales.set(item.productId, existing);
@@ -61,6 +34,38 @@ export function Reports() {
     .map(([id, data]) => ({ id, ...data }))
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5);
+
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    return d.toISOString().split('T')[0];
+  }).reverse();
+
+  const salesData = last7Days.map(dateStr => {
+    const dayOrders = orders.filter(o => o.date.startsWith(dateStr));
+    return {
+      name: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short' }),
+      sales: dayOrders.reduce((acc, o) => acc + o.total, 0),
+      orders: dayOrders.length
+    };
+  });
+
+  const last6Months = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    return { month: d.getMonth(), year: d.getFullYear(), name: d.toLocaleDateString('en-US', { month: 'short' }) };
+  }).reverse();
+
+  const revenueData = last6Months.map(m => {
+    const monthOrders = orders.filter(o => {
+      const d = new Date(o.date);
+      return d.getMonth() === m.month && d.getFullYear() === m.year;
+    });
+    return {
+      month: m.name,
+      revenue: monthOrders.reduce((acc, o) => acc + o.total, 0)
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -97,7 +102,7 @@ export function Reports() {
             <DollarSign className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">৳{totalRevenue.toLocaleString()}</div>
             <p className="text-xs text-emerald-500 flex items-center mt-1">
               <TrendingUp className="h-3 w-3 mr-1" /> +20.1% from last month
             </p>
@@ -121,7 +126,7 @@ export function Reports() {
             <TrendingUp className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${averageOrderValue.toFixed(2)}</div>
+            <div className="text-2xl font-bold">৳{averageOrderValue.toFixed(2)}</div>
             <p className="text-xs text-emerald-500 flex items-center mt-1">
               <TrendingUp className="h-3 w-3 mr-1" /> +4% from last month
             </p>
@@ -207,7 +212,7 @@ export function Reports() {
                   <TableRow key={product.id}>
                     <TableCell className="font-medium">{product.name}</TableCell>
                     <TableCell className="text-right">{product.sold}</TableCell>
-                    <TableCell className="text-right">${product.revenue.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">৳{product.revenue.toLocaleString()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

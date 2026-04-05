@@ -99,3 +99,22 @@ CREATE TABLE notifications (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   link TEXT
 );
+
+-- User Addresses
+CREATE TABLE user_addresses (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  address TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Users (Admin Panel Role tracking)
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  role TEXT NOT NULL DEFAULT 'cashier',
+  status TEXT DEFAULT 'Active',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);

@@ -70,7 +70,7 @@ export function CustomerLayout() {
           isScrolled ? "shadow-md" : ""
         )}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between relative">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between relative">
           
           {/* Left: Logo */}
           <Link 
@@ -81,7 +81,7 @@ export function CustomerLayout() {
             )}
           >
             <Smartphone className="h-6 w-6 mr-2" />
-            <span className="font-bold text-xl tracking-tight text-gray-900 hidden sm:block">Gunjon Telecom</span>
+            <span className="font-bold text-xl tracking-tight text-gray-900 hidden sm:block">Gunjan Telecom</span>
             <span className="font-bold text-xl tracking-tight text-gray-900 sm:hidden">GT</span>
           </Link>
 
@@ -140,7 +140,7 @@ export function CustomerLayout() {
                                   <img src={product.image} alt={product.name} className="w-10 h-10 object-cover rounded-md mr-3" />
                                   <div>
                                     <p className="text-sm font-medium text-gray-900">{product.name}</p>
-                                    <p className="text-xs text-gray-500">${product.price.toFixed(2)}</p>
+                                    <p className="text-xs text-gray-500">৳{product.price.toFixed(2)}</p>
                                   </div>
                                 </Link>
                               </li>
@@ -196,9 +196,6 @@ export function CustomerLayout() {
                 </span>
               )}
             </Link>
-            <Link to="/admin" className="text-xs font-bold bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-full hover:bg-indigo-100 transition-colors whitespace-nowrap">
-              Admin
-            </Link>
           </div>
         </div>
         
@@ -248,8 +245,8 @@ export function CustomerLayout() {
       </nav>
 
       <footer className="bg-gray-900 text-white py-12 hidden md:block">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400">&copy; 2026 Gunjon Telecom. All rights reserved.</p>
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-gray-400">&copy; 2026 Gunjan Telecom. All rights reserved.</p>
         </div>
       </footer>
     </div>

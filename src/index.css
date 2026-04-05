@@ -3,6 +3,44 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  
+  /* Primary Deep Blue */
+  --color-indigo-50: #ebf5ff;
+  --color-indigo-100: #d6ebff;
+  --color-indigo-500: #2997ff;
+  --color-indigo-600: #0A84FF;
+  --color-indigo-700: #0071e3;
+  --color-indigo-800: #0058b0;
+  --color-indigo-900: #00458a;
+  
+  /* Secondary Soft Gray */
+  --color-gray-50: #F5F5F7;
+  
+  /* Accent Light Green (Success/Stock) */
+  --color-green-100: #dcf7e3;
+  --color-emerald-500: #34C759;
+  --color-green-500: #34C759;
+  --color-green-600: #2fb350;
+  --color-green-800: #1a642d;
+  
+  /* Danger Soft Red (Out of Stock) */
+  --color-red-100: #ffdede;
+  --color-red-500: #FF3B30;
+  --color-red-600: #e6352b;
+  --color-red-800: #801d18;
+  
+  /* Modern Rounded Corners */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  
+  /* Subtle Apple-like Soft Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.1);
 }
 
 html {

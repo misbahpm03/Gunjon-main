@@ -49,6 +49,13 @@ export function Users() {
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'admin' | 'manager' | 'cashier'>('admin');
+  
+  const [newUserName, setNewUserName] = useState('');
+  const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserRole, setNewUserRole] = useState<'admin' | 'manager' | 'cashier'>('cashier');
+  const [newUserPassword, setNewUserPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   const filteredUsers = users.filter(u => 
     u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -63,6 +70,40 @@ export function Users() {
       } catch (error) {
         console.error('Failed to toggle user status', error);
       }
+    }
+  };
+
+  const handleAddUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUserName || !newUserEmail) return;
+    
+    setIsSubmitting(true);
+    try {
+      if (editingUser) {
+        await api.updateUser(editingUser.id, {
+          name: newUserName,
+          email: newUserEmail,
+          role: newUserRole,
+        });
+      } else {
+        await api.addUser({
+          name: newUserName,
+          email: newUserEmail,
+          role: newUserRole,
+          status: 'Active'
+        });
+      }
+      setIsAddUserModalOpen(false);
+      setEditingUser(null);
+      setNewUserName('');
+      setNewUserEmail('');
+      setNewUserRole('cashier');
+      setNewUserPassword('');
+    } catch (error: any) {
+      console.error('Failed to add user', error);
+      alert('Failed to add user: ' + (error?.message || 'Check if "users" table is correctly set up in the database.'));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -86,7 +127,13 @@ export function Users() {
           <Button variant="outline" onClick={() => setIsPermissionsModalOpen(true)}>
             <Shield className="mr-2 h-4 w-4" /> View Permissions
           </Button>
-          <Button onClick={() => setIsAddUserModalOpen(true)}>
+          <Button onClick={() => {
+            setEditingUser(null);
+            setNewUserName('');
+            setNewUserEmail('');
+            setNewUserRole('cashier');
+            setIsAddUserModalOpen(true);
+          }}>
             <Plus className="mr-2 h-4 w-4" /> Add User
           </Button>
         </div>
@@ -142,13 +189,24 @@ export function Users() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-indigo-600">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-gray-500 hover:text-indigo-600"
+                        onClick={() => {
+                          setEditingUser(user);
+                          setNewUserName(user.name);
+                          setNewUserEmail(user.email);
+                          setNewUserRole(user.role);
+                          setIsAddUserModalOpen(true);
+                        }}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className={`h-8 w-8 ${user.status === 'Active' ? 'text-rose-500 hover:text-rose-600' : 'text-emerald-500 hover:text-emerald-600'}`}
+                        className={`h-8 w-8 ৳{user.status === 'Active' ? 'text-rose-500 hover:text-rose-600' : 'text-emerald-500 hover:text-emerald-600'}`}
                         onClick={() => handleToggleStatus(user.id)}
                         title={user.status === 'Active' ? 'Deactivate User' : 'Activate User'}
                       >
@@ -163,32 +221,39 @@ export function Users() {
         </CardContent>
       </Card>
 
-      {/* Add User Modal */}
-      <Modal isOpen={isAddUserModalOpen} onClose={() => setIsAddUserModalOpen(false)} title="Add New User">
-        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setIsAddUserModalOpen(false); }}>
+      {/* Add / Edit User Modal */}
+      <Modal isOpen={isAddUserModalOpen} onClose={() => setIsAddUserModalOpen(false)} title={editingUser ? "Edit User" : "Add New User"}>
+        <form className="space-y-4" onSubmit={handleAddUser}>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-            <Input placeholder="e.g., John Doe" required />
+            <Input placeholder="e.g., John Doe" required value={newUserName} onChange={e => setNewUserName(e.target.value)} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email / Phone</label>
-            <Input placeholder="e.g., john@example.com" required />
+            <Input placeholder="e.g., john@example.com" required value={newUserEmail} onChange={e => setNewUserEmail(e.target.value)} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-            <select className="flex h-10 w-full items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <select 
+              className="flex h-10 w-full items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={newUserRole}
+              onChange={e => setNewUserRole(e.target.value as any)}
+            >
               <option value="admin">Super Admin</option>
               <option value="manager">Manager</option>
               <option value="cashier">Sales Staff</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Temporary Password</label>
-            <Input type="password" placeholder="Enter password" required />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Temporary Password (Optional)</label>
+            <Input type="password" placeholder="Enter password (Optional)" value={newUserPassword} onChange={e => setNewUserPassword(e.target.value)} />
+            <p className="text-xs text-gray-500 mt-1">Users should receive an invite or magic link to set their own password if using Supabase Auth.</p>
           </div>
           <div className="pt-4 flex justify-end space-x-2">
             <Button type="button" variant="outline" onClick={() => setIsAddUserModalOpen(false)}>Cancel</Button>
-            <Button type="submit">Add User</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : (editingUser ? 'Save Changes' : 'Add User')}
+            </Button>
           </div>
         </form>
       </Modal>
@@ -198,19 +263,19 @@ export function Users() {
         <div className="space-y-6">
           <div className="flex space-x-2 border-b border-gray-200 pb-2">
             <button
-              className={`px-4 py-2 text-sm font-medium rounded-t-md ${selectedRole === 'admin' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-4 py-2 text-sm font-medium rounded-t-md ৳{selectedRole === 'admin' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
               onClick={() => setSelectedRole('admin')}
             >
               Super Admin
             </button>
             <button
-              className={`px-4 py-2 text-sm font-medium rounded-t-md ${selectedRole === 'manager' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-4 py-2 text-sm font-medium rounded-t-md ৳{selectedRole === 'manager' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
               onClick={() => setSelectedRole('manager')}
             >
               Manager
             </button>
             <button
-              className={`px-4 py-2 text-sm font-medium rounded-t-md ${selectedRole === 'cashier' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-4 py-2 text-sm font-medium rounded-t-md ৳{selectedRole === 'cashier' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
               onClick={() => setSelectedRole('cashier')}
             >
               Sales Staff
