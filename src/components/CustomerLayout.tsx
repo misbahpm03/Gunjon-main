@@ -76,13 +76,12 @@ export function CustomerLayout() {
           <Link 
             to="/" 
             className={cn(
-              "flex items-center text-indigo-600 transition-opacity duration-200",
+              "flex items-center transition-opacity duration-200",
               isSearchExpanded ? "opacity-0 md:opacity-100 pointer-events-none md:pointer-events-auto" : "opacity-100"
             )}
           >
-            <Smartphone className="h-6 w-6 mr-2" />
-            <span className="font-bold text-xl tracking-tight text-gray-900 hidden sm:block">Gunjan Telecom</span>
-            <span className="font-bold text-xl tracking-tight text-gray-900 sm:hidden">GT</span>
+            <img src="/logo.png" alt="Gunjan Telecom" className="h-9 w-9 object-contain" />
+            <span className="font-bold text-xl tracking-tight text-gray-900 hidden sm:block ml-2">Gunjan Telecom</span>
           </Link>
 
           {/* Center: Search Bar */}

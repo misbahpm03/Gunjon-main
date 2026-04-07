@@ -77,8 +77,8 @@ export function Layout() {
     <div className="flex h-screen bg-gray-50 text-gray-900 font-sans">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200">
-        <div className="h-16 flex items-center px-6 border-b border-gray-200">
-          <Smartphone className="h-6 w-6 text-indigo-600 mr-2" />
+        <div className="h-16 flex items-center px-4 border-b border-gray-200">
+          <img src="/logo.png" alt="Gunjan Telecom" className="h-10 w-10 object-contain mr-2" />
           <span className="text-lg font-bold tracking-tight">Gunjan Telecom</span>
         </div>
         <nav className="flex-1 overflow-y-auto py-4">
@@ -130,7 +130,7 @@ export function Layout() {
         {/* Topbar */}
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6">
           <div className="flex items-center md:hidden">
-            <Smartphone className="h-6 w-6 text-indigo-600 mr-2" />
+            <img src="/logo.png" alt="Gunjan Telecom" className="h-8 w-8 object-contain mr-2" />
             <span className="text-lg font-bold">Gunjan Telecom</span>
           </div>
           <div className="hidden md:flex items-center text-sm text-gray-500">
